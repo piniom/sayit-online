@@ -25,7 +25,7 @@ SECRET_KEY = 'qnjb*0dz-p42**4z$v=)krhqve75^_qrxmp&^2p7u^bc@!)0(z'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['wojtulewicz.ddns.net', 'www.wojtulewicz.ddns.net:8000', '*']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
