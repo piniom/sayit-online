@@ -1,0 +1,17 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    {% for game in games %}
+        <article class="media content-section">
+          <div class="media-body">
+            <div class="article-metadata">
+              <small class="text-muted">{{ game.date_created|date:"E d, Y" }}</small>
+                {% for user in game.players.users.all %}
+                    <img class="rounded-circle game-img-sm mt-1 mb-1 ml-1 mr-1" src="{{ user.profile.image.url }}" title="{{ user }}">
+                {% endfor %}
+            </div>
+            <h2><a class="article-title" href="{% url 'game-detail' game.id %}">{{ game.title }}</a></h2>
+            <p class="article-content">{{ game.description }}</p>
+          </div>
+        </article>
+    {% endfor %}
+{% endblock content %}

@@ -1,0 +1,27 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    <div class="article-metadata bg-white p-4 rounded">
+        <div class="mt-4 mb-5"><h2>What game room would you like to enter?</h2></div>
+        <div class="mt-2 mb-2">
+            <input id="room-name-input" class="form-control form-control-lg mt-2 mb-2" type="text" size="100"><br>
+            <input id="room-name-submit" class="btn btn-lg mt-3 mb-2 bg-first" type="button" value="Enter the game">
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('#room-name-input').focus();
+        document.querySelector('#room-name-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#room-name-submit').click();
+            }
+        };
+
+        document.querySelector('#room-name-submit').onclick = function(e) {
+            var roomName = document.querySelector('#room-name-input').value;
+            if (roomName){
+                 window.location.pathname = '/game/' + roomName + '/';
+            }
+           
+        };
+    </script>
+{% endblock content%}

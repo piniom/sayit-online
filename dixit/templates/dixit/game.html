@@ -1,0 +1,66 @@
+{% extends "blog/base.html" %}
+{% block game %}
+    <div class="container">
+        <h3>Title {{ title }}</h3>
+        <h3>Game state {{ state }}</h3>
+        <h3>Player state {{ player_state }}</h3>
+        <h3>Players{{ players }}</h3>
+        <h3>Description {{ descrip }}</h3>
+        <h3>Gracze:</h3>
+        <div class="row">
+            {% for user in players %}
+                <img class="rounded-circle game-img mt-2 mb-2 mr-2" src="{{ user.profile.image.url }}" title="{{ user }}">
+            {% endfor %}
+        </div>
+        <h3>Twoja ręka:</h3>
+        {% if player_state == 0 %}
+        <form action="{% url 'game' %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                {% for card in player.hand_cards.all %}
+                    <input type="radio" id="{{ card.id }}" name="player_card" value="{{ card.id }}">
+                    <label for="{{ card.id }}"><img class="game-card" src="{{ card.image.url }}" title="{{ card }}"></label>
+                {% endfor %}
+            </div>
+            <input id="game_id" type="hidden" name="game_id" value="{{ id }}">
+            <input id="is_joining" type="hidden" name="is_joining" value="false">
+            <input type="submit" value="Play the card" class="btn btn-primary">
+        </form>
+        {% endif %}
+        {% if player_state != 0 %}
+        <div class="row">
+            {% for card in player.hand_cards.all %}
+                <div class="col-xs-4 col-md-3 col-2 text-center"><img class="game-card" src="{{ card.image.url }}" title="{{ card }}"></div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if state == 1 and player_state == 1 %}
+            <h2>Karty na stole:</h2>
+            <form action="{% url 'game' %}" method="POST">
+            {% csrf_token %}
+            <div class="row">
+                {% for card in board %}
+                    <input type="radio" id="{{ card.id }}" name="board_card" value="{{ card.id }}">
+                    <label for="{{ card.id }}"><img class="game-card" src="{{ card.image.url }}" title="{{ card }}"></label>
+                {% endfor %}
+            </div>
+            <input id="game_id" type="hidden" name="game_id" value="{{ id }}">
+            <input id="is_joining" type="hidden" name="is_joining" value="false">
+            <input type="submit" value="Play the card" class="btn btn-primary">
+        </form>
+        {% endif %}
+        <h2>Dostepne:</h2>
+        <div class="row">
+            {% for card in available %}
+                <div class="col-xs-4 col-md-3 col-2 text-center"><img class="game-card" src="{{ card.image.url }}" title="{{ card }}"></div>
+            {% endfor %}
+        </div>
+        <h2>Zużyte:</h2>
+        <div class="row">
+            {% for card in used %}
+                <div class="col-xs-4 col-md-3 col-2 text-center"><img class="game-card" src="{{ card.image.url }}" title="{{ card }}"></div>
+            {% endfor %}
+        </div>
+
+    </div>
+{% endblock game %}

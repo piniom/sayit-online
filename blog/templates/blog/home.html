@@ -1,0 +1,40 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    <div class="article-metadata bg-white p-4 rounded mb-4">
+        <div class="mt-4 mb-5"><h3>What game room would you like to enter?</h3></div>
+        <div class="mt-2 mb-2">
+            <input id="room-name-input" class="form-control mt-2 mb-2" type="text" size="100"><br>
+            <input id="room-name-submit" class="btn mt-3 mb-2 bg-first" type="button" value="Enter the game">
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('#room-name-input').focus();
+        document.querySelector('#room-name-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#room-name-submit').click();
+            }
+        };
+
+        document.querySelector('#room-name-submit').onclick = function(e) {
+            var roomName = document.querySelector('#room-name-input').value;
+            if (roomName){
+                 window.location.pathname = '/game/' + roomName + '/';
+            }
+        };
+    </script>
+
+    {% for post in posts %}
+        <article class="media content-section">
+          <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">{{ post.author }}</a>
+              <small class="text-muted">{{ post.date_posted|date:"E d, Y" }}</small>
+            </div>
+            <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+            <p class="article-content">{{ post.content }}</p>
+          </div>
+        </article>
+    {% endfor %}
+{% endblock content %}

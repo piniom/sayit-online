@@ -1,0 +1,10 @@
+pip install django
+pip install channels
+pip install django-crispy-forms
+pip install Pillow
+pip install django-annoying
+pip install channels-redis
+sudo apt install redis
+sudo nano /etc/redis/redis.conf //protected mode no
+sudo service redis-server start
+(nohup) python3 manage.py runserver 0.0.0.0:8000

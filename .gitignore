@@ -1,0 +1,7 @@
+db.sqlite3
+database/game_files/*
+database/messages/*
+*/__pycache__/*
+*/*/__pycache__/*
+media/profile_pics/*
+

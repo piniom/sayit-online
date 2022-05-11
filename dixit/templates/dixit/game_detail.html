@@ -1,0 +1,30 @@
+{% extends "blog/base.html" %}
+{% block content %}
+        <article class="media content-section">
+          <div class="media-body">
+            <div class="article-metadata">
+              <small class="text-muted">{{ game.date_created|date:"E d, Y" }}</small>
+            </div>
+            <div class="article-metadata">
+                {% for user in game.players.users.all %}
+                    <img class="rounded-circle game-img mt-2 mb-2 mr-2" src="{{ user.profile.image.url }}" title="{{ user }}">
+                {% endfor %}
+                {% for card in game.available_cards.all %}
+                    <img class="rounded-circle game-img mt-2 mb-2 mr-2" src="{{ card.image.url }}" title="{{ card }}">
+                {% endfor %}
+            </div>
+            <h2 class="article-title">{{ game.title }}</h2>
+            <p class="article-content">
+                {{ game.description }}
+            </p>
+            <p class="article-content">
+                <form action="{% url 'game' %}" method="POST">
+                    {% csrf_token %}
+                    <input id="game.id" type="hidden" name="game_id" value="{{ game.id }}">
+                    <input id="is_joining" type="hidden" name="is_joining" value="true">
+                    <input type="submit" value="Join" class="btn btn-primary">
+                </form>
+            </p>
+          </div>
+        </article>
+{% endblock content %}

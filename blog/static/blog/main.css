@@ -1,0 +1,435 @@
+body {
+    background: #303030;
+    color: #333333;
+    margin-top: 5rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #444444;
+}
+
+ul {
+    margin: 0;
+}
+
+.bg-steel {
+    background-color: #cf75FF;
+}
+
+.bg-first {
+    background-color: #2b580c;
+    color: #d8ebb5;
+}
+
+.bg-second {
+    background-color: #639a67;
+}
+
+.bg-third {
+    background-color: #d8ebb5;
+    color: #2b580c;
+}
+
+.bg-fourth {
+    background-color: #d9bf77;
+}
+
+.site-header .navbar-nav .nav-link {
+    color: #cbd5db;
+}
+
+.site-header .navbar-nav .nav-link:hover {
+    color: #ffffff;
+}
+
+.site-header .navbar-nav .nav-link.active {
+    font-weight: 500;
+}
+
+.content-section {
+    background: #ffffff;
+    padding: 10px 20px;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    margin-bottom: 20px;
+}
+
+.article-title {
+    color: #444444;
+}
+
+a.article-title:hover {
+    color: #428bca;
+    text-decoration: none;
+}
+
+.article-content {
+    white-space: pre-line;
+}
+
+.article-img {
+    height: 65px;
+    width: 65px;
+    margin-right: 16px;
+}
+
+.article-metadata {
+    padding-bottom: 1px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #e3e3e3
+}
+
+.article-metadata a:hover {
+    color: #333;
+    text-decoration: none;
+}
+
+.article-svg {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+}
+
+.account-img {
+    height: 125px;
+    width: 125px;
+    margin-right: 20px;
+    margin-bottom: 16px;
+}
+
+.account-heading {
+    font-size: 2.5rem;
+}
+
+.game-img {
+    height: 40px;
+    width: 40px;
+}
+
+.game-img-sm {
+    height: 20px;
+    width: 20px;
+}
+
+.game-card {
+    width: 100px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.chat-box {
+    height: 50vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#chat-div {
+    display: none;
+    position: fixed;
+    top: 120px;
+    left: 10px;
+    right: 10px;
+    background-color: white;
+    padding: 20px;
+    transition: 3s;
+}
+
+.message {
+    display: inline-block;
+}
+
+#description {
+    position: fixed;
+    top: 65px;
+    left: 25px;
+    width: calc(50% - 47.5px);
+    z-index: 150;
+}
+
+#game-nav {
+    position: fixed;
+    top: 65px;
+    right: 10px;
+    width: calc(50% - 32.5px);
+    z-index: 50;
+    height: 40px;
+    font-weight: bold;
+}
+
+.game-nav-item {
+    line-height: 40px;
+    font-size: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0;
+    background-color: white;
+    border-radius: 20px;
+}
+
+#chat-toggle {
+    float: right;
+    cursor: pointer;
+    background-color: white;
+    border-radius: 20px;
+    width: 40px;
+    text-align: center;
+}
+
+#chat-message {
+    border-radius: 20px;
+    height: 40px;
+    position: fixed;
+    right: 10px;
+    top: 120px;
+    background-color: white;
+    width: 100px;
+    line-height: 40px;
+}
+
+#game-guide {
+    float: left;
+    width: calc(100% - 60px);
+    text-align: center;
+}
+
+#description>div {
+    height: 100%;
+}
+
+#description-div {
+    line-height: 40px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 20px;
+    background-color: white;
+}
+
+#players {
+    padding-top: 10px;
+    position: fixed;
+    height: 70px;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+#players>div {
+    height: 40px;
+    line-height: 40px;
+    margin-top: 0 !important;
+    margin-left: 10px;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+#board-cards {
+    /*background-color: ;*/
+    margin-top: 120px;
+    margin-right: 10px;
+    margin-left: 10px;
+    border-radius: 20px;
+    justify-content: center;
+    margin-bottom: 8vw;
+}
+
+.card-div {
+    /* background-color: ;*/
+    width: 16.6vw;
+    box-sizing: border-box;
+    border-radius: 20px;
+    text-align: center;
+    transition: .5s;
+}
+
+.card-div>.player-image {}
+
+.card-div:hover {}
+
+.card {
+    width: 100%;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: .5s;
+}
+
+.player-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+}
+
+.player-points {
+    font-size: 30px;
+    font-weight: bold;
+    padding-left: 2px;
+    padding-right: 10px;
+    color: white;
+}
+
+.message-div {}
+
+.message-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+}
+
+.message-content {
+    line-height: 40px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.player-div {
+    border-radius: 20px;
+}
+
+#game-container {
+    background-color: white;
+    transition: 2s;
+}
+
+#player-cards {
+    position: fixed;
+    bottom: -16vw;
+    left: 10px;
+    width: 100vw;
+    z-index: 100;
+    transition: .5s;
+    padding-top: 1vw;
+    padding-bottom: 1vw;
+    max-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+#hide-player-cards {
+    display: none;
+    position: fixed;
+    left: calc(49vw);
+    transform: translate(-50%);
+    z-index: 200;
+    opacity: .75;
+}
+
+.rounded-lg {
+    border-radius: 20px;
+}
+
+#board-cards>div {
+    margin: .5vw;
+}
+
+@media(max-width:900px) {
+    #player-cards {
+        bottom: calc(-75vw + (1vw - 1vmin) * 55);
+    }
+    #game-nav {
+        top: 42px;
+        right: 10px;
+        height: 24px;
+        font-weight: bold;
+    }
+    .game-nav-item {
+        font-size: 12px;
+        line-height: 24px;
+    }
+    #chat-toggle {
+        width: 24px;
+        text-align: left;
+        padding-left: 6.5px;
+    }
+    #game-guide {
+        width: calc(100% - 44px);
+    }
+    #board-cards>div {
+        width: 32vw;
+    }
+    #description {
+        top: 42px;
+        height: 24px;
+        line-height: 24px;
+    }
+    #description-div {
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+    }
+    .player-image {
+        width: 24px;
+        height: 24px;
+        border-radius: 12px;
+    }
+    .rounded-lg {
+        border-radius: 12px;
+    }
+    .player-div {
+        height: 24px;
+        border-radius: 12px;
+    }
+    .player-points {
+        font-size: 12px;
+        font-weight: bold;
+        padding-left: 2px;
+        padding-right: 6px;
+        color: white;
+    }
+    #players {
+        padding-top: 10px;
+        position: fixed;
+        height: 70px;
+        width: 100vw;
+    }
+    #players>div {
+        height: 24px;
+        line-height: 24px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    #descrpition-input-div {
+        height: 24px;
+        line-height: 24px;
+    }
+    #descrpition-input {
+        height: 24px;
+        line-height: 24px;
+    }
+    #descrpition-submit {
+        height: 24px;
+    }
+    .btn {
+        height: 24px;
+        line-height: 10px;
+        font-size: 12px;
+    }
+    .form-control {
+        height: 24px;
+        font-size: 12px;
+    }
+}
+
+
+/* @media(max-width:974px) {
+    .card-div {
+        margin: 5px;
+        width: calc(32vw - 7px);
+    }
+}
+
+@media(max-width:652px) {
+    .card-div {
+        margin: 2px;
+        width: calc(32vw - 3px);
+    }
+} */

@@ -1,0 +1,29 @@
+{% extends "blog/base.html" %}
+{% block game %}
+<div class="container">
+    <div class="row">
+            {% for user in game.players.all %}
+                <img class="rounded-circle game-img mt-2 mb-2 mr-2" src="{{ user.profile.image.url }}" title="{{ user }}">
+            {% endfor %}
+    </div>
+    <form action="{% url 'game' %}" method="POST">
+        {% csrf_token %}
+        {% if user.id == game.board.player.id %}
+            <label for="description">Your description: </label>
+            <input type="text" id="description" name="description" maxlength="100">
+        {% else %}
+            <h2>Hasło: {{ game.board }}</h2>
+        {% endif %}
+        <h3>Twoja ręka:</h3>
+        <div class="row">
+            {% for card in player.hand_cards.all %}
+                <input type="radio" id="{{ card.id }}" name="player_card" value="{{ card.id }}">
+                <label for="{{ card.id }}"><img class="game-card" src="{{ card.image.url }}" title="{{ card }}"></label>
+            {% endfor %}
+        </div>
+        <input id="game_id" type="hidden" name="game_id" value="{{ game.id }}">
+        <input id="is_joining" type="hidden" name="is_joining" value="false">
+        <input type="submit" value="Play the card" class="btn btn-primary">
+    </form>
+</div>
+{% endblock game %}

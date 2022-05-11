@@ -1,0 +1,492 @@
+{% extends 'game/minibase.html' %}
+{% block gamecontent %}
+    
+    <!--<textarea id='game-log' cols='100' rows='20'></textarea>-->
+    <div >
+        
+        <p id='user' hidden>{{ user }}</p>
+        <p id='user_id' hidden>{{ user.id }}</p>
+        <p id='roomName' hidden></p>
+        <p id='userImage' hidden>{{ user.profile.image.url }}</p>
+
+
+        <div id='players' class=''></div>
+        <button id="hide-player-cards" class="btn btn-lg rounded-lg">Hide</button>
+        <div id='description'>
+            <div class='row' id='description-input-div' style='display: none'>
+                <input id='description-input' class='col-10 form-control rounded-lg' type='text' size='100' placeholder="Write down your clue">
+                <input id='description-submit' class='col-2 btn bg-first rounded-lg' type='button' value='send'>
+            </div>
+            <div class='row justify-content-center' id='description-div' style='display: none'>
+
+            </div>
+            <div class='row justify-content-center' id='next-turn-div' style='display: none'>
+                <input id='next-turn' class='col-12 btn bg-first rounded-lg' type='button' value='Next Turn'>
+            </div>
+        </div>
+        <div id="game-nav" class="rounded-lg">
+            <div id="game-guide" class="game-nav-item">
+                ...
+            </div>
+            <div id="chat-toggle" class="game-nav-item">
+                M
+            </div>
+        </div>
+        <div id='board-cards' class="row"></div>
+
+
+        <div id="chat-div" class="rounded-lg">
+            <div id="chat" class="chat-box rounded-lg"></div>
+            <div class='row mt-2 mb-2'>
+                <input id='game-message-input' class='col-10 form-control rounded-lg' type='text' size='100' value=''>
+                <input id='game-message-submit' class='col-2 btn bg-first rounded-lg' type='button' value='send'>
+            </div>
+        </div>
+
+        <div id='player-cards' class="row"></div>
+    </div>
+    
+    {{ room_name|json_script:"room-name" }} 
+    <script>
+        
+        function removeElement(id) {
+            var elem = document.getElementById(id);
+            return elem.parentNode.removeChild(elem);
+        }
+
+        const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+        const user = document.getElementById('user').textContent;
+        const user_id = document.getElementById('user_id').textContent;
+        const userImageUrl = document.getElementById('userImage').textContent;
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        document.getElementById('roomName').innerHTML = roomName;
+        var player_state = 0;
+        var global_description = false;
+        var global_is_describing = false;
+        var global_game_state = 0;
+        var player_cards_toggle = false;
+        var global_describing_player = false;
+
+        var isChatToggled = false;
+
+        const gameSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/game/'
+            + roomName
+            + '/'
+        );
+
+        gameSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            //document.querySelector('#game-log').value += (data.user + ': ' + data.message + '\n');
+            if (data.mode == "chat"){
+                player = document.createElement("DIV");
+                player.className += "message-div d-flex "
+                if(data.userId == user_id){
+                    player.className += "flex-row-reverse"
+                }
+                img = document.createElement("IMG");
+                img.className += "message-image"
+                img.src = data.userImageUrl;
+                img.title = data.user;
+                img.alt = data.user;
+                player.appendChild(img);
+                p = document.createElement("P");
+                p.className += "message-content"
+                p.innerText = data.message;
+                player.appendChild(p);
+                var div = document.getElementById("chat");
+                div.appendChild(player);
+                div.scrollTop = div.scrollHeight - div.clientHeight;
+                if(!isChatToggled){
+                    document.getElementById("chat-toggle").style.backgroundColor = "#d9bf77";
+                }
+            }
+            else if (data.mode == "active_players"){
+                players_div = document.getElementById("players").innerHTML = '';
+                for(let i=0; i < data.players.length; i++){
+                    player = document.createElement("DIV");
+                    player.className += "d-inline-flex bg-second player-div";
+                    player.id = data.players[i] + "player";
+                    if ( ( data.states[i] == 0 && global_description ) || ( global_game_state == 1 && player_state == 1 && data.players[i] != global_describing_player ) ){
+                        player.style.backgroundColor = "#d9bf77";
+                    }
+                    else {
+                        {% comment %} player.style.backgroundColor = "#639a67";
+                        setTimeout(function(){ 
+                            player.style.backgroundColor = "#639a67";
+                        }, 100); {% endcomment %}
+                    }
+                    img = document.createElement("IMG");
+                    img.className += "player-image"
+                    img.src = data.images[i];
+                    img.title = data.names[i];
+                    img.alt = data.names[i];
+                    player.appendChild(img);
+                    p = document.createElement("P");
+                    p.className += "player-points"
+                    p.innerText = data.points[i];
+                    player.appendChild(p);
+                    document.getElementById("players").appendChild(player);
+                }
+            }
+            else if (data.mode == "draw_card"){
+                console.log('new card')
+                div = document.createElement("DIV");
+                div.className += "card-div";
+                div.setAttribute('id', data.card + 'div')
+                card = document.createElement("IMG");
+                //card.setAttribute('onclick', 'cardClickEventHandler()')
+                card.setAttribute('id', data.card)
+                card.className += "card"
+                card.src = "/media/card_pics/" + data.card + ".png";
+                div.appendChild(card)
+                document.getElementById("player-cards").appendChild(div);
+                playerCardsBottom()
+            }
+            else if (data.mode == "new_board_card"){
+                console.log('new board card')
+                div = document.createElement("DIV");
+                div.className += "card-div";
+                div.setAttribute('id', data.card + 'div')
+                card = document.createElement("IMG");
+                card.setAttribute('onclick', 'boardCardClickEventHandler()')
+                card.setAttribute('id', data.card)
+                card.className += "card"
+                card.src = "/media/card_pics/" + data.card + ".png";
+                div.appendChild(card)
+                document.getElementById("board-cards").appendChild(div);
+            }
+            else if (data.mode == "player_state"){
+                console.log('Player state: ' + data.state);
+                player_state = data.state;
+                if (global_game_state == 0 && player_state == 1){
+                    var cont = document.getElementById("game-guide");
+                    cont.style.backgroundColor = "#fff";
+                    cont.innerText = "Waiting...";
+                }  
+            }
+            else if (data.mode == "new_describing_player"){
+                console.log('Describing player: ' + data.player + 'vs' + user_id);
+                if (data.player == user_id){
+                    var div = document.getElementById("description-input-div");
+                    div.style.display = "flex";
+                    var descDiv = document.getElementById("description-div");
+                    descDiv.style.display = "none"; 
+                    global_is_describing = true;
+                    var cont = document.getElementById("game-guide");
+                    cont.style.backgroundColor = "#d9bf77";
+                    cont.innerText = "Give a clue";
+                }
+                global_describing_player = data.player;
+                var div = document.getElementById("description-div");
+                div.innerText = data.name + ":";
+                //div.style.display = "block";
+                if(document.getElementById(data.player + "player")){
+                    document.getElementById(data.player + "player").style.backgroundColor = "#d9bf77";
+                }
+                
+            }
+            else if (data.mode == "new_description"){
+                console.log('Description: ' + data.description);
+                var div = document.getElementById("description-input-div");
+                div.style.display = "none";
+                var div = document.getElementById("description-div");
+                div.style.display = "flex";
+                div.innerText += " " + data.description;
+                global_description = true;
+                var div = document.getElementById('board-cards');
+                div.innerHTML = '';
+                if (player_state == 0){
+                    var cont = document.getElementById("game-guide");
+                    cont.style.backgroundColor = "#d9bf77";
+                    cont.innerText = "Play a card";
+                }
+                var children = document.getElementById("players").children;
+                for (var i = 0; i < children.length; i++) {
+                    var player = children[i];
+                    player.style.backgroundColor = "#d9bf77";
+                }
+            }
+            else if (data.mode == "new_game_state"){
+                if (data.state == 1){
+                    document.getElementById("board-cards").innerHTML = '';
+                    global_game_state = 1
+                    if (player_state == 1 && global_is_describing == false){
+                        var cont = document.getElementById("game-guide");
+                        cont.style.backgroundColor = "#d9bf77";
+                        cont.innerText = "Make a guess";
+                    } 
+                }
+                else {
+                    global_game_state = data.state
+                }
+            }
+            else if (data.mode == "vote_confirmed"){
+                console.log('vote confirmed')
+                player_state = 2;
+                var card = document.getElementById(data.card+'div');
+                card.style.border = "5px solid #2b580c"
+                var cont = document.getElementById("game-guide");
+                cont.style.backgroundColor = "#fff";
+                cont.innerText = "Waiting...";
+            }
+            else if (data.mode == "card_voters"){
+                console.log('voters incoming')
+                console.log(data.card)
+                var card = document.getElementById(data.card+'div');
+                var imgAuthor = document.createElement("IMG");
+                imgAuthor.className += "player-image";
+                imgAuthor.src = data.author_img;
+                imgAuthor.title = data.author;
+                card.prepend(imgAuthor);
+                for(let i=0; i < data.voters.length; i++){
+                    voter = data.voters[i]
+                    img = document.createElement("IMG")
+                    img.className += "player-image";
+                    img.src = voter.user_img;
+                    img.title = voter.user_name
+                    card.appendChild(img);
+                }
+            }
+            else if (data.mode == "finish_turn"){
+                console.log('turn_finished')
+                global_game_state = 2;
+                var card = document.getElementById(data.card+'div');
+                card.style.backgroundColor = "#639a67"
+                if (data.reload == false){
+                    var delay = 10000;
+                } 
+                else {
+                    var delay = 0;
+                }
+                setTimeout(function(){ 
+                    var divHide = document.getElementById('description-div');
+                    divHide.style.display = "none";
+                    var divShow = document.getElementById('next-turn-div');
+                    divShow.style.display = "flex";
+                }, delay);
+                var cont = document.getElementById("game-guide");
+                cont.innerText = "Turn finished";
+                cont.style.backgroundColor = "#fff";
+            }
+            else if (data.mode == "next_turn"){
+                console.log('next_turn')
+                global_game_state = 0;
+                player_state = 0;
+                global_description = false;
+                global_is_describing = false;
+                global_game_state = 0;
+                var nextDiv = document.getElementById("next-turn-div");
+                nextDiv.style.display = "none";
+                var descDiv = document.getElementById("description-div");
+                descDiv.style.display = "flex"; 
+            }
+            else if (data.mode == "player_is_done"){
+                document.getElementById(data.player + "player").style.backgroundColor = "#639a67";
+            }
+        };
+
+        gameSocket.onclose = function(e) {
+            var cont = document.getElementById("game-guide");
+            cont.style.backgroundColor = "red";
+            cont.innerText = "Disconected... :(";
+            console.error('Game socket closed unexpectedly');
+            location.reload(true);
+        };
+
+        //document.querySelector('#game-message-input').focus();
+        document.querySelector('#game-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {
+                document.querySelector('#game-message-submit').click();
+            }
+        };
+
+        document.querySelector('#game-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#game-message-input');
+            const message = messageInputDom.value;
+            if (message != ''){
+                gameSocket.send(JSON.stringify({
+                    "mode": "chat",
+                    "user": user,
+                    "userId": user_id,
+                    "message": message,
+                    "userImageUrl": userImageUrl,
+                }));
+                messageInputDom.value = '';
+            }
+        };
+
+        document.querySelector('#description-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {
+                document.querySelector('#description-submit').click();
+            }
+        };
+
+        document.querySelector('#description-submit').onclick = function(e) {
+            const descriptionInputDom = document.querySelector('#description-input');
+            const new_description = descriptionInputDom.value;
+            if (new_description != ''){
+                gameSocket.send(JSON.stringify({
+                    "mode": "new_description",
+                    "description": new_description
+                }));
+                descriptionInputDom.value = '';
+                var div = document.getElementById("description-input-div");
+                div.style.display = "none";
+            }
+        };
+
+        document.querySelector('#next-turn').onclick = function(e) {
+            gameSocket.send(JSON.stringify({
+                "mode": "next_turn",
+            }));
+            var div = document.getElementById("next-turn-div");
+            div.style.display = "none";
+        };
+
+        function zoomCard(event){
+            if (!event) {
+                event = window.event;
+            };
+            var card = (event.target || event.srcElement);
+
+            //card.style.transform = "scale(2)";
+            card.style.position = "fixed";
+            card.style.zIndex = "150";
+        };
+
+        function cardClickEventHandler(event){
+            if (player_state == 0 && global_description){
+                if (!event) {
+                    event = window.event;
+                };
+                var card = (event.target || event.srcElement);
+                document.querySelector('#hide-player-cards').click();
+                gameSocket.send(JSON.stringify({
+                        "mode": "card_played",
+                        "user": user_id,
+                        "card": card.id,
+                    }));
+                removeElement(card.id + 'div');
+                console.log('trying')
+                if (global_is_describing){
+                    console.log('succesing')
+                    gameSocket.send(JSON.stringify({
+                        
+                        "mode": "card_described",
+                        "card": card.id,
+                    }));
+                }
+            }
+        };
+
+        function boardCardClickEventHandler(event){
+            console.log('click')
+            console.log('game_state: ' + global_game_state + ', is_describing: ' + global_is_describing)
+            if (global_game_state == 1 && global_is_describing == false){
+                console.log('conditions met')
+                if (!event) {
+                    event = window.event;
+                };
+                var card = (event.target || event.srcElement);
+
+                gameSocket.send(JSON.stringify({
+                    "mode": "card_vote",
+                    "card": card.id,
+                }));
+            }
+        };
+
+        function playerCardsBottom(){
+            var children = document.getElementById("player-cards").children;
+            for (var i = 0; i < children.length; i++) {
+                var card = children[i];
+                if(vw<900){
+                    card.style.width = "31vw";
+                    rotation = -10 + i * 10;
+                    position = Math.abs(1-i) * 3;
+                }
+                else {
+                    rotation =  -15 + i * 6;
+                    position = Math.abs(2.5-i) * 15;
+                    card.style.width = "16vw";
+                }
+            
+                card.style.transform = "rotate(" + rotation + "deg) translate(0px, " + position + "%)"
+                card.style.zIndex = 100 + i;
+                card.setAttribute('onclick', '')
+            }
+            document.getElementById("player-cards").style.transform = "translate(0, 0)"; 
+            document.getElementById("player-cards").scrollTop = 0;
+            document.getElementById("hide-player-cards").style.display = "none";
+            document.getElementById("player-cards").style.overflowY = "hidden"; 
+            setTimeout(function(){ 
+                document.getElementById("hide-player-cards").style.display = "none";
+                document.getElementById("player-cards").style.overflowY = "hidden"; 
+            }, 500);
+            document.getElementById("player-cards").style.overflowY = "hidden"; 
+        }
+
+        document.querySelector('#player-cards').onclick = function(event){
+            console.log('show cards');
+            var children = document.getElementById("player-cards").children;
+            for (var i = 0; i < children.length; i++) {
+                    var card = children[i];
+                    card.style.transform = "rotate(0deg) translate(0, 0)";
+                    if(vw<900){
+                        card.style.width = "32vw";
+                        this.style.transform = "translate(0px, -76vmin)"; 
+                    }
+                    else{
+                        card.style.width = "16.6vw";
+                        this.style.transform = "translate(0, -16vw)"; 
+                    }
+                    if(global_description && player_state == 0){
+                        card.setAttribute('onclick', 'cardClickEventHandler()')
+                    }
+                    //card.setAttribute('onclick', 'zoomCard()')
+                }
+            
+            
+            setTimeout(function(){ 
+                document.getElementById("hide-player-cards").style.display = "block";
+                if(vw<900){
+                    document.getElementById("hide-player-cards").style.bottom = "0";
+                    document.getElementById("player-cards").style.overflowY = "auto"; 
+                }
+                else {
+                    document.getElementById("hide-player-cards").style.bottom = "25vw";
+                }
+            }, 500);
+        }
+
+        document.querySelector('#chat-toggle').onclick = function(event){
+            console.log('chat-toggle');
+            if (isChatToggled){
+                document.getElementById('chat-div').style.display = "none";
+                isChatToggled = false;
+            }
+            else {
+                document.getElementById('chat-div').style.display = "block";
+                document.getElementById("chat-toggle").style.backgroundColor = "white";
+                var div = document.getElementById('chat');
+                div.scrollTop = div.scrollHeight - div.clientHeight;
+                playerCardsBottom();
+                isChatToggled = true;
+            }
+            
+        }
+
+        document.querySelector('#hide-player-cards').onclick = function(event){
+            playerCardsBottom();
+        } 
+
+
+        
+    </script>
+
+{% endblock gamecontent %}
